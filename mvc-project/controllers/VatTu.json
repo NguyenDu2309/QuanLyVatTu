@@ -1,0 +1,32 @@
+[
+  {
+    "MAVT": "M01 ",
+    "TENVT": "Máy giặt tự động cửa trước",
+    "DVT": "Cái",
+    "SOLUONGTON": 0
+  },
+  {
+    "MAVT": "MU01",
+    "TENVT": "Máy uốn tóc",
+    "DVT": "Cái",
+    "SOLUONGTON": 10
+  },
+  {
+    "MAVT": "MX02",
+    "TENVT": "Máy sấy",
+    "DVT": "Cái",
+    "SOLUONGTON": 1
+  },
+  {
+    "MAVT": "MX07",
+    "TENVT": "Máy lạnh LG",
+    "DVT": "Cái",
+    "SOLUONGTON": 4
+  },
+  {
+    "MAVT": "TV02",
+    "TENVT": "Ti vi Sam Sung",
+    "DVT": "Cái",
+    "SOLUONGTON": 0
+  }
+]

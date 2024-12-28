@@ -1,0 +1,26 @@
+[
+  {
+    "MANV": 1,
+    "TEN": "Trang",
+    "LUONG": 7000000,
+    "MACN": "CN1"
+  },
+  {
+    "MANV": 3,
+    "TEN": "Thanh",
+    "LUONG": 5000000,
+    "MACN": "CN1"
+  },
+  {
+    "MANV": 5,
+    "TEN": "Thái",
+    "LUONG": 6000000,
+    "MACN": "CN1"
+  },
+  {
+    "MANV": 7,
+    "TEN": "Trà",
+    "LUONG": 7000000,
+    "MACN": "CN1"
+  }
+]

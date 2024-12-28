@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Lý Nhân viên</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    .actions button {
+      margin-right: 5px;
+    }
+
+    /* Giới hạn chiều cao của bảng và thêm thanh cuộn */
+    .table-container {
+      max-height: 300px; /* Điều chỉnh chiều cao tối đa cho bảng */
+      overflow-y: auto; /* Thêm thanh cuộn khi vượt quá 300px */
+    }
+  </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4" >Quản Lý Nhân viên</h1>
+        
+        <!-- Chọn chi nhánh -->
+        <div class="mb-4">
+            <label for="branchSelect" class="form-label">Chọn Chi nhánh</label>
+            <select id="branchSelect" class="form-select">
+                <option value="1">Chi nhánh 1 TPHCM</option>
+                <option value="2">Chi nhánh 2 TP Cần Thơ</option>
+                <option value="all">Tất cả chi nhánh</option>
+            </select>
+        </div>
+
+
+        <div class="mt-4 text-end">
+            <button class="btn btn-secondary" onclick="window.location.href='/Vattu.ejs'">
+                <i class="bi bi-box-seam"></i> Thông Tin Vật Tư
+            </button>
+        </div>
+
+
+        <!-- Bảng hiển thị nhân viên -->
+        <div class="table-container">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Mã NV</th>
+                        <th>Họ</th>
+                        <th>Tên</th>
+                        <th>Địa chỉ</th>
+                        <th>Ngày sinh</th>
+                        <th>Lương</th>
+                        <th>Hình ảnh</th>
+                        <th>Chi nhánh</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                    <!-- Nội dung sẽ được thêm động -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Form thêm/sửa nhân viên -->
+        <div class="mt-5">
+            <h3 class="text-center mb-4">Thêm Hoặc Sửa Nhân viên</h3>
+            <form id="employeeForm">
+                <div class="mb-3">
+                    <label for="MANV" class="form-label">Mã NV</label>
+                    <input type="text" id="MANV" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="HO" class="form-label">Họ</label>
+                    <input type="text" id="HO" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="TEN" class="form-label">Tên</label>
+                    <input type="text" id="TEN" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="DIACHI" class="form-label">Địa chỉ</label>
+                    <input type="text" id="DIACHI" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="NGAYSINH" class="form-label">Ngày sinh</label>
+                    <input type="date" id="NGAYSINH" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="LUONG" class="form-label">Lương</label>
+                    <input type="number" id="LUONG" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Hình ảnh</label>
+                    <input type="text" id="image" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="MACN" class="form-label">Chi Nhánh</label>
+                    <input type="text" id="MACN" class="form-control">
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary" id="addEmployeeBtn">Thêm nhân viên</button>
+                    <button type="button" class="btn btn-success" id="updateEmployeeBtn">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('branchSelect').addEventListener('change', async (e) => {
+            const branch = e.target.value;
+            const response = await fetch(`/api/NhanVien/get-NhanVien?branch=${branch}`);
+            const data = await response.json();
+
+            const tableBody = document.getElementById('employeeTableBody');
+            tableBody.innerHTML = data.map(employee => `
+                <tr>
+                    <td>${employee.MANV}</td>
+                    <td>${employee.HO || ''}</td>
+                    <td>${employee.TEN || ''}</td>
+                    <td>${employee.DIACHI || ''}</td>
+                    <td>${employee.NGAYSINH ? new Date(employee.NGAYSINH).toLocaleDateString() : ''}</td>
+                    <td>${employee.LUONG || ''}</td>
+                    <td>${employee.image || ''}</td>
+                    <td>${employee.MACN || ''}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deleteEmployee('${employee.MANV}')">Xóa</button>
+                    </td>
+                </tr>
+            `).join('');
+        });
+
+        document.getElementById('updateEmployeeBtn').addEventListener('click', async () => {
+            const body = {
+                MANV: document.getElementById('MANV').value,
+                HO: document.getElementById('HO').value,
+                TEN: document.getElementById('TEN').value,
+                DIACHI: document.getElementById('DIACHI').value,
+                NGAYSINH: document.getElementById('NGAYSINH').value,
+                LUONG: document.getElementById('LUONG').value,
+                image: document.getElementById('image').value,
+                MACN: document.getElementById('MACN').value,
+            };
+            const response = await fetch('/api/NhanVien/update-NhanVien', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (response.ok) {
+                alert('Cập nhật nhân viên thành công');
+                document.getElementById('employeeForm').reset();
+                document.getElementById('branchSelect').dispatchEvent(new Event('change'));
+            }
+        });
+        
+        const deleteEmployee = async (MANV) => {
+            if (!confirm('Bạn có chắc muốn xóa nhân viên này?')) return;
+
+            try {
+                const response = await fetch(`/api/NhanVien/delete-NhanVien`, { // API xóa nhân viên
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ MANV }), // Truyền thông tin MANV cần xóa
+                });
+
+                if (response.ok) {
+                    alert('Xóa nhân viên thành công!');
+                    document.getElementById('branchSelect').dispatchEvent(new Event('change')); // Tải lại danh sách
+                } else {
+                    const errorData = await response.json();
+                    alert(`Lỗi: ${errorData.message || 'Không thể xóa nhân viên'}`);
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa nhân viên:', error); // In lỗi ra console để debug dễ dàng
+            }
+        };
+
+        // Lắng nghe sự kiện click vào các nút "Xóa"
+        document.getElementById('employeeTableBody').addEventListener('click', (event) => {
+            if (event.target.classList.contains('delete-btn')) {
+                const MANV = event.target.getAttribute('data-id'); // Lấy mã nhân viên từ data-id
+                deleteEmployee(MANV); // Gọi hàm xóa nhân viên
+            }
+        });
+
+        document.getElementById('addEmployeeBtn').addEventListener('click', async () => {
+            const body = {
+                MANV: document.getElementById('MANV').value,
+                HO: document.getElementById('HO').value,
+                TEN: document.getElementById('TEN').value,
+                DIACHI: document.getElementById('DIACHI').value,
+                NGAYSINH: document.getElementById('NGAYSINH').value,
+                LUONG: parseFloat(document.getElementById('LUONG').value), // Convert to float for number type
+                image: document.getElementById('image').value,
+                MACN: document.getElementById('MACN').value,
+            };
+            const response = await fetch('/api/NhanVien/fetch-InsertNV', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (response.ok) {
+                alert('Thêm nhân viên thành công');
+                document.getElementById('employeeForm').reset();
+                document.getElementById('branchSelect').dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+</body>
+</html>

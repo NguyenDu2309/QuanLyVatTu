@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Vật Tư</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .scrollable-table {
+            max-height: 400px; /* Đặt chiều cao tối đa của bảng */
+            overflow-y: auto; /* Kích hoạt thanh cuộn dọc */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Quản Lý Vật Tư</h1>
+        
+        <!-- Form Thêm/Sửa Vật Tư -->
+        <div class="card mb-4">
+            <div class="card-header" id="formHeader">Thêm Vật Tư</div>
+            <div class="card-body">
+                <form id="addVatTuForm">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="MAVT" class="form-label">Mã Vật Tư</label>
+                            <input type="text" id="MAVT" name="MAVT" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="TENVT" class="form-label">Tên Vật Tư</label>
+                            <input type="text" id="TENVT" name="TENVT" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="DVT" class="form-label">Đơn Vị Tính</label>
+                            <input type="text" id="DVT" name="DVT" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="SOLUONGTON" class="form-label">Số Lượng Tồn</label>
+                            <input type="number" id="SOLUONGTON" name="SOLUONGTON" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="LoaiVT" class="form-label">Loại Vật Tư</label>
+                            <select id="LoaiVT" name="LoaiVT" class="form-select" required>
+                                <option value="Điện thoại">Điện thoại</option>
+                                <option value="Máy tính">Máy tính</option>
+                                <option value="Các thiết bị khác">Các thiết bị khác</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="MotaVT" class="form-label">Mô Tả Vật Tư</label>
+                            <input type="text" id="MotaVT" name="MotaVT" class="form-control">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitButton">Thêm</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bảng Thông Tin Vật Tư -->
+        <div class="card">
+            <div class="card-header">Danh Sách Vật Tư</div>
+            <div class="card-body scrollable-table">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Mã Vật Tư</th>
+                            <th>Tên Vật Tư</th>
+                            <th>Đơn Vị Tính</th>
+                            <th>Số Lượng Tồn</th>
+                            <th>Loại Vật Tư</th>
+                            <th>Mô Tả Vật Tư</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vatTuTableBody">
+                        <!-- Hàng dữ liệu sẽ được chèn động ở đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const apiUrl = 'http://localhost:3002/api';
+        
+        // Lấy danh sách vật tư từ server
+        const fetchVatTu = async () => {
+            try {
+                const response = await fetch(`${apiUrl}/get-VT`);
+                const data = await response.json();
+                const tableBody = document.getElementById('vatTuTableBody');
+                tableBody.innerHTML = '';
+
+                data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td>${item.MAVT}</td>
+                            <td>${item.TENVT}</td>
+                            <td>${item.DVT}</td>
+                            <td>${item.SOLUONGTON}</td>
+                            <td>${item.LoaiVT}</td>
+                            <td>${item.MotaVT}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editVatTu('${item.MAVT}')">Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteVatTu('${item.MAVT}')">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.insertAdjacentHTML('beforeend', row);
+                });
+            } catch (error) {
+                console.error('Lỗi khi lấy danh sách vật tư:', error);
+            }
+        };
+
+        // thêm vật tư vào 
+        const addVatTu = async () => {
+            const MAVT = document.getElementById('MAVT').value;
+            const TENVT = document.getElementById('TENVT').value;
+            const DVT = document.getElementById('DVT').value;
+            const SOLUONGTON = document.getElementById('SOLUONGTON').value;
+            const LoaiVT = document.getElementById('LoaiVT').value;
+            const MotaVT = document.getElementById('MotaVT').value;
+
+            const newVatTu = {
+                MAVT: MAVT,
+                TENVT: TENVT,
+                DVT: DVT,
+                SOLUONGTON: SOLUONGTON,
+                LoaiVT: LoaiVT,
+                MotaVT: MotaVT,
+            };
+
+            try {
+                const response = await fetch(`${apiUrl}/fetch-InsertVT`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newVatTu),
+                });
+
+                if (response.ok) {
+                    alert('Thêm vật tư thành công!');
+                    fetchVatTu(); // Gọi lại hàm fetchVatTu để cập nhật danh sách vật tư
+                } else {
+                    alert('Lỗi khi thêm vật tư');
+                }
+            } catch (error) {
+                console.error('Lỗi khi thêm vật tư:', error);
+            }
+        };
+
+        // Chỉnh sửa vật tư
+        const editVatTu = (MAVT) => {
+            const formHeader = document.getElementById('formHeader');
+            const submitButton = document.getElementById('submitButton');
+
+            // Cập nhật tiêu đề và thay đổi nút thành "Cập nhật"
+            formHeader.textContent = 'Sửa Vật Tư';
+            submitButton.textContent = 'Cập nhật';
+
+            // Lấy thông tin vật tư cần sửa
+            fetch(`${apiUrl}/get-VT/${MAVT}`)
+                .then(response => response.json())
+                .then(item => {
+                    // Hiển thị thông tin vào form
+                    document.getElementById('MAVT').value = item.MAVT;
+                    document.getElementById('TENVT').value = item.TENVT;
+                    document.getElementById('DVT').value = item.DVT;
+                    document.getElementById('SOLUONGTON').value = item.SOLUONGTON;
+                    document.getElementById('LoaiVT').value = item.LoaiVT;
+                    document.getElementById('MotaVT').value = item.MotaVT;
+                })
+                .catch(error => console.error('Lỗi khi lấy thông tin vật tư:', error));
+            
+            // Thay đổi hành động khi submit
+            document.getElementById('addVatTuForm').onsubmit = async (event) => {
+                event.preventDefault();
+
+                const updatedVatTu = {
+                    MAVT: document.getElementById('MAVT').value,
+                    TENVT: document.getElementById('TENVT').value,
+                    DVT: document.getElementById('DVT').value,
+                    SOLUONGTON: document.getElementById('SOLUONGTON').value,
+                    LoaiVT: document.getElementById('LoaiVT').value,
+                    MotaVT: document.getElementById('MotaVT').value,
+                };
+
+                try {
+                    const response = await fetch(`${apiUrl}/update-VT`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedVatTu),
+                    });
+
+                    if (response.ok) {
+                        alert('Cập nhật vật tư thành công!');
+                        fetchVatTu(); // Lấy lại danh sách sau khi cập nhật
+                        formHeader.textContent = 'Thêm Vật Tư'; // Đặt lại tiêu đề
+                        submitButton.textContent = 'Thêm'; // Đặt lại nút thành Thêm
+                        document.getElementById('addVatTuForm').reset(); // Reset form
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Lỗi: ${errorData.message || 'Không thể cập nhật vật tư'}`);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi cập nhật vật tư:', error);
+                }
+            };
+        };
+
+        // Xóa vật tư
+        const deleteVatTu = async (MAVT) => {
+            if (!confirm('Bạn có chắc muốn xóa vật tư này?')) return;
+
+            try {
+                const response = await fetch(`${apiUrl}/delete-VT`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ MAVT }),
+                });
+
+                if (response.ok) {
+                    alert('Xóa vật tư thành công!');
+                    fetchVatTu();
+                } else {
+                    const errorData = await response.json();
+                    alert(`Lỗi: ${errorData.message || 'Không thể xóa vật tư'}`);
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa vật tư:', error);
+            }
+        };
+
+        // Khởi động trang
+        fetchVatTu();
+    </script>
+</body>
+</html>
