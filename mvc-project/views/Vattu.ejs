@@ -117,13 +117,16 @@
         };
 
         // thêm vật tư vào 
-        const addVatTu = async () => {
+        const addVatTu = async (event) => {
+            event.preventDefault();  // Ngừng việc gửi form
+
             const MAVT = document.getElementById('MAVT').value;
             const TENVT = document.getElementById('TENVT').value;
             const DVT = document.getElementById('DVT').value;
             const SOLUONGTON = document.getElementById('SOLUONGTON').value;
             const LoaiVT = document.getElementById('LoaiVT').value;
             const MotaVT = document.getElementById('MotaVT').value;
+            const Branch = document.getElementById('Branch').value;
 
             const newVatTu = {
                 MAVT: MAVT,
@@ -132,6 +135,7 @@
                 SOLUONGTON: SOLUONGTON,
                 LoaiVT: LoaiVT,
                 MotaVT: MotaVT,
+                Branch: Branch  // Thêm chi nhánh vào dữ liệu
             };
 
             try {

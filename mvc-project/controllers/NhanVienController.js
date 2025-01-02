@@ -18,42 +18,42 @@ const getConnectionString = (branch) => {
 };
 
 // Thêm nhân viên vào MongoDB và SQL Server
-const AddNhanVien = async (req, res) => {
-    const { MANV, DIACHI, NGAYSINH, MACN, branch, LUONG, image, HO, TEN } = req.body;
-    const connectionString = getConnectionString(branch);
+    const AddNhanVien = async (req, res) => {
+        const { MANV, DIACHI, NGAYSINH, MACN, branch, LUONG, image, HO, TEN } = req.body;
+        const connectionString = getConnectionString(branch);
 
-    // Dùng câu lệnh chuẩn bị để tránh SQL Injection
-    const query = `INSERT INTO NhanVien (MANV, DIACHI, NGAYSINH, MACN) VALUES (?, ?, ?, ?)`;
-    
-    try {
-        // Dùng Promise để thực hiện query với SQL Server
-        await new Promise((resolve, reject) => {
-            sql.query(connectionString, query, [MANV, DIACHI, NGAYSINH, MACN], (err, result) => {
-                if (err) {
-                    console.error("Error while inserting into SQL Server: ", err);
-                    reject({ error: "Lỗi khi thêm dữ liệu vào SQL Server" });
-                }
-                resolve(result);
+        // Dùng câu lệnh chuẩn bị để tránh SQL Injection
+        const query = `INSERT INTO NhanVien (MANV, DIACHI, NGAYSINH, MACN) VALUES (?, ?, ?, ?)`;
+        
+        try {
+            // Dùng Promise để thực hiện query với SQL Server
+            await new Promise((resolve, reject) => {
+                sql.query(connectionString, query, [MANV, DIACHI, NGAYSINH, MACN], (err, result) => {
+                    if (err) {
+                        console.error("Error while inserting into SQL Server: ", err);
+                        reject({ error: "Lỗi khi thêm dữ liệu vào SQL Server" });
+                    }
+                    resolve(result);
+                });
             });
-        });
 
-        // Lưu vào MongoDB
-        const newNhanVien = new NhanVien({
-            MANV,
-            HO,
-            TEN,
-            LUONG,
-            image,
-        });
-        await newNhanVien.save();
+            // Lưu vào MongoDB
+            const newNhanVien = new NhanVien({
+                MANV,
+                HO,
+                TEN,
+                LUONG,
+                image,
+            });
+            await newNhanVien.save();
 
-        // Trả về thông báo thành công
-        res.status(200).json({ message: "Nhân viên đã được thêm vào!" });
-    } catch (err) {
-        console.error("Error: ", err);
-        res.status(500).json(err);
-    }
-};
+            // Trả về thông báo thành công
+            res.status(200).json({ message: "Nhân viên đã được thêm vào!" });
+        } catch (err) {
+            console.error("Error: ", err);
+            res.status(500).json(err);
+        }
+    };
 
 // Lấy toàn bộ nhân viên từ cả MongoDB và SQL Server
 const getALLNhanVien = async (req, res) => {
